@@ -1,4 +1,4 @@
-package com.yapily.codingchallenge.service;
+package com.yapily.codingchallenge.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -121,7 +121,8 @@ class UselessFactControllerTest {
 
     @Test
     void shouldNotTranslateIfLanguageNotAvailable() throws JsonProcessingException {
-        UselessFact fact1 = UselessFact.builder().id(UUID.randomUUID()).build();
+        UUID id = UUID.randomUUID();
+        UselessFact fact1 = UselessFact.builder().id(id).language("en").build();
         when(repository.findById(any(UUID.class))).thenReturn(Mono.just(fact1));
 
         LangDirections directions = LangDirections.builder().dirs(List.of("en-rs")).build();
@@ -139,7 +140,7 @@ class UselessFactControllerTest {
     @Test
     void shouldTranslateIfLanguageAvailable() throws JsonProcessingException {
         UUID id = UUID.randomUUID();
-        UselessFact fact1 = UselessFact.builder().id(id).build();
+        UselessFact fact1 = UselessFact.builder().id(id).language("en").build();
         when(repository.findById(any(UUID.class))).thenReturn(Mono.just(fact1));
 
         LangDirections directions = LangDirections.builder().dirs(List.of("en-rs")).build();

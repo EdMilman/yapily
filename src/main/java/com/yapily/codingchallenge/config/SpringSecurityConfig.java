@@ -9,13 +9,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    public static final String ROLE_USER = "USER";
+    public static final String ROLE_ADMIN = "ADMIN";
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
         auth.inMemoryAuthentication()
-                .withUser("user").password("{noop}password").roles("USER")
+                .withUser("user").password("{noop}password").roles(ROLE_USER)
                 .and()
-                .withUser("admin").password("{noop}password").roles("USER", "ADMIN");
+                .withUser("admin").password("{noop}password").roles(ROLE_USER, ROLE_ADMIN);
 
     }
 
@@ -25,10 +28,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic()
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/fact/**").hasRole("USER")
-                .antMatchers(HttpMethod.GET, "/facts").hasRole("USER")
-                .antMatchers(HttpMethod.GET, "/status").hasRole("ADMIN")
-                .antMatchers(HttpMethod.GET, "/all-facts").hasRole("USER")
+                .antMatchers(HttpMethod.GET, "/fact/**").hasRole(ROLE_USER)
+                .antMatchers(HttpMethod.GET, "/facts").hasRole(ROLE_USER)
+                .antMatchers(HttpMethod.GET, "/status").hasRole(ROLE_ADMIN)
+                .antMatchers(HttpMethod.GET, "/all-facts").hasRole(ROLE_USER)
                 .and()
                 .csrf().disable()
                 .formLogin().disable();

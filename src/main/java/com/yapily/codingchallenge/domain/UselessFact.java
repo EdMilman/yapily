@@ -1,7 +1,6 @@
 package com.yapily.codingchallenge.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -19,12 +18,11 @@ import java.util.UUID;
 @Document
 @Builder
 public class UselessFact {
-    @ApiModelProperty(notes = "The fact")
-    private String text;
     @Id
-    @JsonProperty("id")
     @ApiModelProperty(name = "Id", required = true, notes = "UUID reference for a fact")
     private UUID id;
+    @ApiModelProperty(notes = "The fact")
+    private String text;
     @JsonProperty("source_url")
     @ApiModelProperty(notes = "The original fact source")
     private String sourceUrl;

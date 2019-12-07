@@ -10,7 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.IntStream;
 
 @Configuration
 public class Config {
@@ -26,13 +25,14 @@ public class Config {
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         return args -> {
             if (Boolean.parseBoolean(first)) {
-                IntStream.range(0, numberOfFacts).forEach(num ->
-                        executorService.submit(() -> client.get()
-                                .uri(factUri)
-                                .retrieve()
-                                .bodyToMono(UselessFact.class)
-                                .flatMap(repository::save)
-                                .block()));
+                for (int i = 0; i < numberOfFacts; i++) {
+                    executorService.submit(() -> client.get()
+                            .uri(factUri)
+                            .retrieve()
+                            .bodyToMono(UselessFact.class)
+                            .flatMap(repository::save)
+                            .block());
+                }
             }
         };
     }

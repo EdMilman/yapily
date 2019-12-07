@@ -14,12 +14,11 @@ import java.util.stream.Collectors;
 @Data
 @Builder
 public class LangDirections {
-    private static final String ENGLISH = "en";
     private List<String> dirs;
 
-    public Set<String> getLanguagesAvailableForTranslation() {
+    public Set<String> getLanguagesAvailableForTranslation(String lang) {
         return dirs.stream()
-                .filter(dir -> dir.startsWith(ENGLISH))
+                .filter(dir -> dir.startsWith(lang))
                 .map(dir -> dir.substring(dir.length() - 2))
                 .collect(Collectors.toSet());
     }

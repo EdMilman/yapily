@@ -1,4 +1,4 @@
-package com.yapily.codingchallenge.service;
+package com.yapily.codingchallenge.controller;
 
 import com.yapily.codingchallenge.domain.LangDirections;
 import com.yapily.codingchallenge.domain.StatusReport;
@@ -25,7 +25,7 @@ import java.util.UUID;
 @Api(value = "Useless fact providing service")
 public class UselessFactController {
 
-    public static final String URI_QUERY = "?key={key}&lang=en-{lang}&text={text}";
+    public static final String URI_QUERY = "?key={key}&lang={fromLang}-{toLang}&text={text}";
     private final UselessFactRepository repository;
     private final WebClient client;
     @Value("${fact.uri}")
@@ -95,17 +95,17 @@ public class UselessFactController {
 
         Mono<LangDirections> langDirections = getLangDirections();
 
-        return langDirections.flatMap(dir -> {
-            if (dir.getLanguagesAvailableForTranslation().contains(lang)) {
-                return uselessFact.flatMap(fact -> {
-                    String uri = uriBuilder.buildAndExpand(API_KEY, lang, fact.getText()).toString();
-                    Mono<TranslatedFact> translatedFact = getTranslatedFact(uri);
-                    return addTranslationDetails(lang, fact, translatedFact);
-                });
+        return uselessFact.zipWith(langDirections).flatMap(factAndLang -> {
+            UselessFact fact = factAndLang.getT1();
+            LangDirections directions = factAndLang.getT2();
+            if (directions.getLanguagesAvailableForTranslation(fact.getLanguage()).contains(lang)) {
+                String uri = uriBuilder.buildAndExpand(API_KEY, fact.getLanguage(), lang, fact.getText()).toString();
+                Mono<TranslatedFact> translatedFact = getTranslatedFact(uri);
+                return addTranslationDetails(lang, fact, translatedFact);
             } else {
                 return uselessFact;
             }
-        });
+        }).onErrorResume(err -> uselessFact);
     }
 
     private Mono<TranslatedFact> getTranslatedFact(String uri) {
