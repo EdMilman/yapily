@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @RestController
 @Api(value = "Useless fact providing service")
-public class UselessFactService {
+public class UselessFactController {
 
     public static final String URI_QUERY = "?key={key}&lang=en-{lang}&text={text}";
     private final UselessFactRepository repository;
@@ -39,7 +39,7 @@ public class UselessFactService {
     @Value("${api.key}")
     private String API_KEY;
 
-    public UselessFactService(UselessFactRepository repository, WebClient client) {
+    public UselessFactController(UselessFactRepository repository, WebClient client) {
         this.repository = repository;
         this.client = client;
     }
@@ -84,7 +84,7 @@ public class UselessFactService {
     @GetMapping("/fact/{id}")
     public Mono<UselessFact> findById(@PathVariable("id") String id, @RequestParam("lang") Optional<String> language) {
         final UUID uuid = UUID.fromString(id);
-        final Mono<UselessFact> uselessFact = repository.findByFactId(uuid)
+        final Mono<UselessFact> uselessFact = repository.findById(uuid)
                 .switchIfEmpty(Mono.error(new RuntimeException("Fact could not be found")));
         if (language.isEmpty()) {
             return uselessFact;
@@ -98,7 +98,7 @@ public class UselessFactService {
         return langDirections.flatMap(dir -> {
             if (dir.getLanguagesAvailableForTranslation().contains(lang)) {
                 return uselessFact.flatMap(fact -> {
-                    String uri = uriBuilder.buildAndExpand(API_KEY, lang, fact.getText()).toUri().toString();
+                    String uri = uriBuilder.buildAndExpand(API_KEY, lang, fact.getText()).toString();
                     Mono<TranslatedFact> translatedFact = getTranslatedFact(uri);
                     return addTranslationDetails(lang, fact, translatedFact);
                 });

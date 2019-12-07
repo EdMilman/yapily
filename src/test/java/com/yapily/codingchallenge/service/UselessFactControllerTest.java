@@ -33,14 +33,14 @@ import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @SpringBootTest
-@ContextConfiguration(classes = {UselessFactService.class, Config.class})
-class UselessFactServiceTest {
+@ContextConfiguration(classes = {UselessFactController.class, Config.class})
+class UselessFactControllerTest {
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static MockWebServer server;
     @MockBean
     private UselessFactRepository repository;
     @Autowired
-    private UselessFactService service;
+    private UselessFactController service;
 
     @BeforeAll
     static void setUp() throws IOException {
@@ -55,8 +55,8 @@ class UselessFactServiceTest {
 
     @Test
     void shouldReturnStatusReportStatusComplete() {
-        UselessFact fact1 = UselessFact.builder().factId(UUID.randomUUID()).build();
-        UselessFact fact2 = UselessFact.builder().factId(UUID.randomUUID()).build();
+        UselessFact fact1 = UselessFact.builder().id(UUID.randomUUID()).build();
+        UselessFact fact2 = UselessFact.builder().id(UUID.randomUUID()).build();
         when(repository.count()).thenReturn(Mono.just(2L));
         when(repository.findAll()).thenReturn(Flux.just(fact1, fact2));
         StatusReport expected = StatusReport.builder()
@@ -71,7 +71,7 @@ class UselessFactServiceTest {
 
     @Test
     void shouldReturnStatusReportStatusLoading() {
-        UselessFact fact1 = UselessFact.builder().factId(UUID.randomUUID()).build();
+        UselessFact fact1 = UselessFact.builder().id(UUID.randomUUID()).build();
         when(repository.count()).thenReturn(Mono.just(1L));
         when(repository.findAll()).thenReturn(Flux.just(fact1));
         StatusReport expected = StatusReport.builder()
@@ -86,7 +86,7 @@ class UselessFactServiceTest {
 
     @Test
     void shouldReturnStatusReportStatusError() {
-        UselessFact fact1 = UselessFact.builder().factId(UUID.randomUUID()).build();
+        UselessFact fact1 = UselessFact.builder().id(UUID.randomUUID()).build();
         when(repository.count()).thenReturn(Mono.error(new RuntimeException()));
         when(repository.findAll()).thenReturn(Flux.just(fact1));
         StatusReport expected = StatusReport.builder()
@@ -111,8 +111,8 @@ class UselessFactServiceTest {
 
     @Test
     void shouldReturnFactInEnglish() {
-        UselessFact fact1 = UselessFact.builder().factId(UUID.randomUUID()).build();
-        when(repository.findByFactId(any())).thenReturn(Mono.just(fact1));
+        UselessFact fact1 = UselessFact.builder().id(UUID.randomUUID()).build();
+        when(repository.findById(any(UUID.class))).thenReturn(Mono.just(fact1));
 
         StepVerifier.create(service.findById(UUID.randomUUID().toString(), Optional.empty()))
                 .expectNext(fact1)
@@ -121,8 +121,8 @@ class UselessFactServiceTest {
 
     @Test
     void shouldNotTranslateIfLanguageNotAvailable() throws JsonProcessingException {
-        UselessFact fact1 = UselessFact.builder().factId(UUID.randomUUID()).build();
-        when(repository.findByFactId(any())).thenReturn(Mono.just(fact1));
+        UselessFact fact1 = UselessFact.builder().id(UUID.randomUUID()).build();
+        when(repository.findById(any(UUID.class))).thenReturn(Mono.just(fact1));
 
         LangDirections directions = LangDirections.builder().dirs(List.of("en-rs")).build();
 
@@ -138,9 +138,9 @@ class UselessFactServiceTest {
 
     @Test
     void shouldTranslateIfLanguageAvailable() throws JsonProcessingException {
-        UUID factId = UUID.randomUUID();
-        UselessFact fact1 = UselessFact.builder().factId(factId).build();
-        when(repository.findByFactId(any())).thenReturn(Mono.just(fact1));
+        UUID id = UUID.randomUUID();
+        UselessFact fact1 = UselessFact.builder().id(id).build();
+        when(repository.findById(any(UUID.class))).thenReturn(Mono.just(fact1));
 
         LangDirections directions = LangDirections.builder().dirs(List.of("en-rs")).build();
 
@@ -161,7 +161,7 @@ class UselessFactServiceTest {
         );
 
         UselessFact expected = UselessFact.builder()
-                .factId(factId)
+                .id(id)
                 .language("rs")
                 .text("new text")
                 .translated(true)

@@ -19,14 +19,12 @@ import java.util.UUID;
 @Document
 @Builder
 public class UselessFact {
-    @Id
-    @JsonIgnore
-    private String mongoId;
     @ApiModelProperty(notes = "The fact")
     private String text;
+    @Id
     @JsonProperty("id")
     @ApiModelProperty(name = "Id", required = true, notes = "UUID reference for a fact")
-    private UUID factId;
+    private UUID id;
     @JsonProperty("source_url")
     @ApiModelProperty(notes = "The original fact source")
     private String sourceUrl;
