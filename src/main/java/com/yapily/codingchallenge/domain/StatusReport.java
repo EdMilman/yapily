@@ -11,7 +11,7 @@ public class StatusReport {
     private long totalFacts;
     private Throwable throwable;
 
-    public enum Status{
+    public enum Status {
         COMPLETED, REPOSITORY_NOT_FULL, ERROR
     }
 }
